@@ -66,11 +66,6 @@ class God:
         return PRF(prg_instance, ggm_prf_logic, block_size=block_size_bytes)
         
 
-
-    def convert_prf_to_mac(self, prf_instance: PRF, **kwargs):
-        """PA #5: Fixed-length PRF-MAC"""
-        return PRF_MAC(prf_instance)
-
     def convert_prf_to_mac(self, prf_instance, **kwargs):
         """PA #5: PRF to MAC"""
         # Default to CBC if the user doesn't specify
