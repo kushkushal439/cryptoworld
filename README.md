@@ -38,9 +38,9 @@ def hill_prg_logic(seed, length, owf_instance):
 router = God()
 
  // 2. Define the root foundation (DLP)
-base_owf = OWF(dlp_logic)
+```base_owf = OWF(dlp_logic)```
 
  // 3. Ask the router to traverse the clique and build a MAC
  // Under the hood, this loops through your convert_* methods 
  // and builds the nested PRG -> PRF -> MAC chain automatically!
-my_mac = router.reduce(Primitive.OWF, Primitive.MAC, base_owf, mac_mode="CBC")
+```my_mac = router.reduce(Primitive.OWF, Primitive.MAC, base_owf, mac_mode="CBC")```
