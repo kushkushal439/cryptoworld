@@ -1,10 +1,16 @@
 from Primitive_enums import Primitive
+from collections import deque
+
+
 from CryptoPrimitives.base import CryptoPrimitive
 from CryptoPrimitives.OWF import OWF
 from CryptoPrimitives.PRG import PRG
-from collections import deque
+from CryptoPrimitives.MAC import MAC
+from CryptoPrimitives.PRF import PRF
 
 from Implementations.PA_1 import convert_owf_to_prg 
+from Implementations.PA_2 import ggm_prf_logic
+
 
 
 
@@ -45,25 +51,35 @@ class God:
 
     # --- Specific Edge Conversions (The "Constructor" instances) ---
 
-    def convert_owf_to_prg(self, owf_instance: OWF):
+    def convert_owf_to_prg(self, owf_instance: OWF, **kwargs):
         """PA #1: HILL Construction"""
         return convert_owf_to_prg(owf_instance)
 
-    def convert_prg_to_prf(self, prg_instance: PRG):
+    def convert_prg_to_prf(self, prg_instance, **kwargs):
         """PA #2: GGM Tree Construction"""
-        return GGM_PRF(prg_instance)
 
-    def convert_prf_to_mac(self, prf_instance: PRF):
-        """PA #5: Fixed-length PRF-MAC"""
-        return PRF_MAC(prf_instance)
+        
+        # Pull tree_depth from kwargs, default to 8 bits (1 byte)
+        tree_depth_bits = kwargs.get("tree_depth", 8)
+        block_size_bytes = max(1, tree_depth_bits // 8)
+        
+        return PRF(prg_instance, ggm_prf_logic, block_size=block_size_bytes)
+        
+
+    def convert_prf_to_mac(self, prf_instance, **kwargs):
+        """PA #5: PRF to MAC"""
+        # Default to CBC if the user doesn't specify
+        mode = kwargs.get("mac_mode", "CBC") 
+        return MAC(prf_instance, mode=mode)
+        
 
 
     # --- The Orchestrators ---
 
-    def convert(self, in_type: Primitive, out_type: Primitive, instance):
+    def convert(self, in_type: Primitive, out_type: Primitive, instance, **kwargs):
         """
         The internal dispatcher. Finds the specific 1-edge 
-        method to call. 
+        method to call and passes along any extra configuration.
         """
         method_name = f"convert_{in_type.name.lower()}_to_{out_type.name.lower()}"
         method = getattr(self, method_name, None)
@@ -71,17 +87,19 @@ class God:
         if not method:
             raise NotImplementedError(f"No direct edge for {method_name}")
             
-        return method(instance)
+        # Pass the **kwargs into the specific conversion method!
+        return method(instance, **kwargs)
 
-    def reduce(self, in_type: Primitive, out_type: Primitive, instance):
+    def reduce(self, in_type: Primitive, out_type: Primitive, instance, **kwargs):
         """
         Finds the shortest path and calls the dispatcher 
-        repeatedly. 
+        repeatedly, forwarding configuration parameters.
         """
         path = self._find_shortest_path(in_type, out_type)
         
         curr_instance = instance
         for i in range(len(path) - 1):
-            curr_instance = self.convert(path[i], path[i+1], curr_instance)
+            # Pass **kwargs through every step of the chain
+            curr_instance = self.convert(path[i], path[i+1], curr_instance, **kwargs)
             
         return curr_instance
