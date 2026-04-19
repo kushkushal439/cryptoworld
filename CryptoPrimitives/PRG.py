@@ -1,4 +1,6 @@
 from .base import CryptoPrimitive
+from Primitive_enums import Primitive
+from typing import Callable
 
 class PRG(CryptoPrimitive):
     def __init__(self, logic_func: Callable):
