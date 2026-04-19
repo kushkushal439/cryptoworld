@@ -4,7 +4,8 @@ from CryptoPrimitives.OWF import OWF
 from CryptoPrimitives.PRG import PRG
 from collections import deque
 
-from implementations.PA1 import convert_owf_to_prg
+from Implementations.PA_1 import convert_owf_to_prg 
+
 
 
 class God:

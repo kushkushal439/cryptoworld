@@ -1,6 +1,10 @@
 # implementations/PA1.py
 from CryptoPrimitives.PRG import PRG
 
+
+def hill_prg_logic(seed, length, owf_instance):
+    """Implements the HILL PRG logic using the provided OWF instance."""
+    pass
 def convert_owf_to_prg(owf_instance):
     """Wraps the HILL logic inside a PRG container."""
     # Notice how we bind the required owf_instance via a lambda/closure
