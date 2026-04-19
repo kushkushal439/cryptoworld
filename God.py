@@ -4,6 +4,9 @@ from CryptoPrimitives.OWF import OWF
 from CryptoPrimitives.PRG import PRG
 from collections import deque
 
+from implementations.PA1 import convert_owf_to_prg
+
+
 class God:
     def __init__(self):
         # Routing table: adjacency list of the Minicrypt Clique
@@ -43,14 +46,7 @@ class God:
 
     def convert_owf_to_prg(self, owf_instance: OWF):
         """PA #1: HILL Construction"""
-        def hill_logic_func(seed, length):
-            # 1. Use the injected owf_instance.evaluate() to run the HILL math
-            # 2. Extract hard-core bits
-            # 3. Return the pseudo-random stream
-            pass
-            
-        # Return a new PRG container holding the HILL logic
-        return PRG(hill_logic_func)
+        return convert_owf_to_prg(owf_instance)
 
     def convert_prg_to_prf(self, prg_instance: PRG):
         """PA #2: GGM Tree Construction"""
