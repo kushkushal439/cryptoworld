@@ -65,7 +65,7 @@ def hill_prg_logic_dlp(seed: bytes, length: int, owf_instance) -> bytes:
             
     return bytes(out_bytes)
 
-def convert_owf_to_prg_dlp(owf_instance):
+def convert_owf_to_prg(owf_instance):
     from CryptoPrimitives.PRG import PRG
     bound_logic = lambda seed, length: hill_prg_logic_dlp(seed, length, owf_instance)
     return PRG(bound_logic)
