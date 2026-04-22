@@ -134,7 +134,7 @@ def run_pa1():
     owf.verify_hardness = verify_hardness_dlp
     owf.verify_hardness()
     
-    prg = convert_owf_to_prg_dlp(owf)
+    prg = convert_owf_to_prg(owf)
     # the GL logic needs 64 bytes (256-bit x, 256-bit r)
     seed = os.urandom(64)
     length_bits = 10000

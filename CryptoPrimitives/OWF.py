@@ -1,5 +1,4 @@
 from typing import Callable
-from Implementations.PA_1 import dlp_owf_logic
 from Primitive_enums import Primitive
 from .base import CryptoPrimitive
 from Primitive_enums import Primitive

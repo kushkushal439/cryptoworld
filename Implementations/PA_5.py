@@ -1,7 +1,5 @@
 from CryptoPrimitives.PRF import PRF
-from CryptoPrimitives.MAC import MAC
-
-
+# from CryptoPrimitives.MAC import MAC
 
 def prf_mac_logic(prf_eval_func, key, message):
     """PA #5: Fixed-length PRF-MAC logic"""
@@ -151,3 +149,4 @@ def length_extension_demo(compression_func, block_size=16):
 
 
 
+from Implementations.PA_3 import CPA_Scheme
