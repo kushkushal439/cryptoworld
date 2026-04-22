@@ -103,39 +103,4 @@ class God:
             curr_instance = self.convert(path[i], path[i+1], curr_instance, **kwargs)
             
         return curr_instance
-    def Encrypt(mode, k, M):
-        """
-        Unified encryption interface.
-        """
-        if mode == Primitive.CBC:
-            # For CBC, Enc returns IV and Ciphertext.
-            return CBC_Enc(k, M)
-        elif mode == Primitive.OFB:
-            # For OFB, you need an IV. Let's assume it's generated here or passed in.
-            # The spec says OFB_Enc(k, IV, M), so we should probably take it as an argument.
-            # This interface might need adjustment based on your final function signatures.
-            # For now, let's assume PA_4.py handles IV generation.
-            iv, ciphertext = OFB_Enc_Dec(k, None, M) # Placeholder for IV handling
-            return iv, ciphertext
-        elif mode == Primitive.CTR:
-            # For CTR, Enc returns nonce and Ciphertext.
-            return CTR_Enc(k, M)
-        else:
-            raise NotImplementedError(f"Encryption for {mode.name} is not implemented.")
-
-    def Decrypt(mode, k, C_bundle):
-        """
-        Unified decryption interface.
-        C_bundle is expected to contain the ciphertext and any other needed values like IV or nonce.
-        """
-        if mode == Primitive.CBC:
-            IV, C = C_bundle
-            return CBC_Dec(k, IV, C)
-        elif mode == Primitive.OFB:
-            IV, C = C_bundle
-            return OFB_Enc_Dec(k, IV, C) # Same function for encryption and decryption
-        elif mode == Primitive.CTR:
-            nonce, C = C_bundle
-            return CTR_Dec(k, nonce, C)
-        else:
-            raise NotImplementedError(f"Decryption for {mode.name} is not implemented.")    
+  
