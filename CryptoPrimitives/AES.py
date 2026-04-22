@@ -32,3 +32,7 @@ aes_prf = PRF(
     logic_func=aes_prf_logic, 
     block_size=16
 )
+
+
+### TO DO:
+# Add aes_encrypt_logic and aes_decrypt_logic here if needed for PA #4, but they are not strictly necessary for the AES PRF itself.
