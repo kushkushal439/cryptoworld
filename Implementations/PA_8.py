@@ -5,10 +5,10 @@ import random
 import math
 
 # Import the Merkle-Damgård framework from PA #7
-from Implementations.PA_7 import MerkleDamgard
+from PA_7 import MerkleDamgard
 
 # Import the rigorous Miller-Rabin primality test from PA #13
-from Implementations.PA_13 import is_prime
+from PA_13 import is_prime
 
 # =====================================================================
 # 1. Number Theoretic Utilities (Linked to PA #13)
