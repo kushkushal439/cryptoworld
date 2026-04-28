@@ -12,7 +12,10 @@ class MAC(CryptoPrimitive):
         if self.mode == "PRF":
             return prf_mac_logic(self.underlying.evaluate, key, message)
         elif self.mode == "CBC":
-            return cbc_mac_logic(self.underlying.evaluate, key, message, block_size=self.underlying.block_size)
+            # GGM PRF doesn't have a strict block size, so default to 16 bytes
+            bs = self.underlying.block_size if self.underlying.block_size else 16
+            
+            return cbc_mac_logic(self.underlying.evaluate, key, message, block_size=bs)
         elif self.mode == "HMAC":
             raise NotImplementedError("HMAC is scheduled for PA #10!")
         else:

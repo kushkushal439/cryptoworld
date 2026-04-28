@@ -18,26 +18,48 @@ import scipy.stats as stats
 # 1. PA #2a: GGM PRF FROM PRG (Forward Direction)
 # =====================================================================
 
-def ggm_prf_logic(prg_instance, key: bytes, query: str) -> bytes:
+from typing import Any
+
+def ggm_prf_logic(prg_instance, key: bytes, query: Any) -> bytes:
     """
     GGM Tree Construction.
-    Takes an n-bit key (seed) and an n-bit query (binary string).
+    Takes an n-bit key (seed) and an n-bit query.
     """
-    current_state = key
+    # 1. Handle byte queries from the UI / AES pipeline
+    if isinstance(query, bytes):
+        query = "".join(format(b, '08b') for b in query)
     
-    # The PRG must double the state size at each tree node
-    output_length = len(key) * 2
+    # print("lenght issss:::")
+    # print(len(query))
+        
+    # SAFETY NET: GGM tree traversal is computationally expensive for DLP.
+    # To prevent Flask from hanging during UI traces, we cap the traversal depth.
+    if len(query) > 8:
+        query = query[:8]
+
+    current_state = key
+    # We explicitly define the bytes we need
+    req_bytes = len(key) * 2
 
     for bit in query:
-        # 1. Expand the current state using the PRG
-        expanded = prg_instance.generate(seed=current_state, length=output_length)
+        # Ask for bits first (for PA_1 DLP PRG compatibility)
+        expanded = prg_instance.generate(seed=current_state, length=req_bytes * 8)
         
-        # 2. Split into G0 (Left) and G1 (Right)
+        # Truncate to the bytes we actually need
+        if len(expanded) >= req_bytes:
+            expanded = expanded[:req_bytes]
+        else:
+            # Fallback just in case the PRG treats length strictly as bytes
+            # print("HUHHHH")
+            expanded = prg_instance.generate(seed=current_state, length=req_bytes)
+            expanded = expanded[:req_bytes]
+            
+        # Split into G0 (Left) and G1 (Right)
         half_len = len(expanded) // 2
         G0 = expanded[:half_len]
         G1 = expanded[half_len:]
         
-        # 3. Traverse down the tree based on the query bit
+        # Traverse down the tree
         if bit == '0':
             current_state = G0
         elif bit == '1':
@@ -45,7 +67,6 @@ def ggm_prf_logic(prg_instance, key: bytes, query: str) -> bytes:
         else:
             raise ValueError("GGM query must be a binary string (e.g., '1011')")
             
-    # The final state at the leaf node is the PRF output
     return current_state
 
 

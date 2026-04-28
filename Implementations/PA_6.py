@@ -6,7 +6,8 @@ from Primitive_enums import Primitive
 
 # Assumes you have a DLP module containing your base OWF instance
 from CryptoPrimitives.DLP import dlp_owf 
-from mplementations.PA_5 import CPA_Scheme
+from Implementations.PA_5 import CPA_Scheme
+from Implementations.PA_5 import prf_mac_logic, cbc_mac_logic # and CPA_Scheme if it's there
 
 def setup_primitive_instances():
     """Dynamically routes DLP through the God class to build the MAC."""

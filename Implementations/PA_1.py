@@ -9,6 +9,10 @@ import random
 P = int('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F', 16)
 G = 2
 
+from functools import lru_cache
+
+# Cache the last 2048 exponentiations to instantly return known values
+@lru_cache(maxsize=2048)
 def dlp_owf_logic(x: int, p=P, g=G) -> int:
     """
     Modular exponentiation (DLP): f(x) = g^x mod p
