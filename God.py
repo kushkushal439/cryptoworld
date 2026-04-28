@@ -7,11 +7,13 @@ from CryptoPrimitives.OWF import OWF
 from CryptoPrimitives.PRG import PRG
 from CryptoPrimitives.MAC import MAC
 from CryptoPrimitives.PRF import PRF
+from collections import deque
 
-from Implementations.PA_1 import convert_owf_to_prg 
+# Import your pure logic functions from the Implementations folder
+from Implementations.PA_1 import convert_owf_to_prg
 from Implementations.PA_2 import ggm_prf_logic
-
-
+from implementations.PA_2 import convert_prg_to_prf, convert_prf_to_prg
+from Implementations.PA_4 import CBC_Enc, CBC_Dec, OFB_Enc_Dec, CTR_Enc, CTR_Dec
 
 
 class God:
@@ -55,15 +57,13 @@ class God:
         """PA #1: HILL Construction"""
         return convert_owf_to_prg(owf_instance)
 
-    def convert_prg_to_prf(self, prg_instance, **kwargs):
+    def convert_prg_to_prf(self, prg_instance: PRG):
         """PA #2: GGM Tree Construction"""
+        return convert_prg_to_prf(prg_instance)
 
-        
-        # Pull tree_depth from kwargs, default to 8 bits (1 byte)
-        tree_depth_bits = kwargs.get("tree_depth", 8)
-        block_size_bytes = max(1, tree_depth_bits // 8)
-        
-        return PRF(prg_instance, ggm_prf_logic, block_size=block_size_bytes)
+    def convert_prf_to_prg(self, prf_instance: PRF):
+        """PA #2: Backward Direction"""
+        return convert_prf_to_prg(prf_instance)
         
 
     def convert_prf_to_mac(self, prf_instance, **kwargs):
@@ -103,3 +103,4 @@ class God:
             curr_instance = self.convert(path[i], path[i+1], curr_instance, **kwargs)
             
         return curr_instance
+  

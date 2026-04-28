@@ -9,3 +9,6 @@ class Primitive(Enum):
     MAC = auto()   # Message Authentication Code
     CRHF = auto()  # Collision-Resistant Hash Function
     HMAC = auto()  # Hash-based MAC
+    CBC = auto()   # Cipher Block Chaining Mode
+    OFB = auto()   # Output Feedback Mode
+    CTR = auto()   # Counter Mode
