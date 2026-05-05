@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { RefreshCw, Activity, ArrowRight, Expand } from 'lucide-react';
+import { RefreshCw, Activity, ArrowRight } from 'lucide-react';
 
 const PrimitiveOptions = ['OWF', 'PRG', 'PRF', 'OWP', 'PRP', 'MAC', 'CRHF', 'HMAC'];
 
@@ -10,7 +10,7 @@ const Explorer = () => {
     const [target, setTarget] = useState('PRF');
     const [inputA, setInputA] = useState('a3f2...');
     const [inputB, setInputB] = useState('1011');
-    const [bidirectional, setBidirectional] = useState(false);
+    const [bidirectional] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // Some dummy state to simulate API response data structure
