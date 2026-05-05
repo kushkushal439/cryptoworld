@@ -15,9 +15,12 @@ CORS(app)
 from md_api import md_api
 from dlp_api import dlp_api
 from rsa_api import rsa_api
+from pa19_api import pa19_api
+
 app.register_blueprint(md_api, url_prefix="/api/md")
 app.register_blueprint(dlp_api, url_prefix="/api/dlp")
 app.register_blueprint(rsa_api, url_prefix="/api/rsa")
+app.register_blueprint(pa19_api, url_prefix="/api/pa19")
 
 router = God()
 

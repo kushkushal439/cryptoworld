@@ -20,9 +20,9 @@ def OT_Receiver_Step1(b: int, bits: int = 512):
     if b not in [0, 1]:
         raise ValueError("Choice bit b must be 0 or 1.")
         
-    # Generate two valid RSA keys
-    pk_0, sk_0 = rsa_keygen(bits)
-    pk_1, sk_1 = rsa_keygen(bits)
+    # Generate two valid RSA keys (sk, pk)
+    sk_0, pk_0 = rsa_keygen(bits)
+    sk_1, pk_1 = rsa_keygen(bits)
     
     if b == 0:
         state = sk_0     # Keep sk_0

@@ -4,6 +4,7 @@ import Explorer from './pages/Explorer';
 import MerkleDamgardDemo from './pages/MerkleDamgardDemo';
 import DLPDemo from './pages/DLPDemo';
 import RSADemo from './pages/RSADemo';
+import PA19Demo from './pages/PA19Demo';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             <Route path="/md" element={<MerkleDamgardDemo />} />
             <Route path="/dlp" element={<DLPDemo />} />
             <Route path="/rsa" element={<RSADemo />} />
+            <Route path="/pa19" element={<PA19Demo />} />
           </Routes>
         </main>
       </div>
