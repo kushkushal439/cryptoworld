@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Explorer from './pages/Explorer';
+import MerkleDamgardDemo from './pages/MerkleDamgardDemo';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/explorer" element={<Explorer />} />
+            <Route path="/md" element={<MerkleDamgardDemo />} />
           </Routes>
         </main>
       </div>

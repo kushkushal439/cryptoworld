@@ -12,6 +12,8 @@ from Implementations.PA_1 import dlp_owf_logic
 
 app = Flask(__name__)
 CORS(app)
+from md_api import md_api
+app.register_blueprint(md_api, url_prefix="/api/md")
 
 router = God()
 
