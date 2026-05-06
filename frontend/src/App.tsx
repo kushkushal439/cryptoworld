@@ -5,6 +5,7 @@ import MerkleDamgardDemo from './pages/MerkleDamgardDemo';
 import DLPDemo from './pages/DLPDemo';
 import RSADemo from './pages/RSADemo';
 import PA19Demo from './pages/PA19Demo';
+import PA2Demo from './pages/PA2Demo';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/dlp" element={<DLPDemo />} />
             <Route path="/rsa" element={<RSADemo />} />
             <Route path="/pa19" element={<PA19Demo />} />
+            <Route path="/pa2" element={<PA2Demo />} />
           </Routes>
         </main>
       </div>

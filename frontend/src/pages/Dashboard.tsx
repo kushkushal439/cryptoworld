@@ -4,6 +4,7 @@ const Dashboard = () => {
   const assignments = [
     { title: 'PA#0: Base Explorer', link: '/explorer', description: 'The core visualization tool for tracing cryptographic reductions.', bg: 'bg-indigo-100', text: 'text-indigo-800' },
     // More to be added by teammates later
+    { title: 'PA#2: GGM Tree Visualiser', link: '/pa2', description: 'Explore the GGM binary tree construct for building PRFs from a PRG.', bg: 'bg-blue-100', text: 'text-blue-800' },
     { title: 'PA#8: DLP Hash Live', link: '/dlp', description: 'Compute DLP Hashes and run the Birthday Attack to solve the Discrete Logarithm.', bg: 'bg-purple-100', text: 'text-purple-800' },
     { title: 'PA#7: Merkle-Damgård Chain Viewer', link: '/md', description: 'Visualize the Merkle-Damgård transform and avalanche effect with editable blocks.', bg: 'bg-green-100', text: 'text-green-800' },
     { title: 'PA#14: RSA Broadcast Attack', link: '/rsa', description: 'Demo Håstad\'s Broadcast attack breaking textbook RSA and how PKCS#1 v1.5 defeats it.', bg: 'bg-red-100', text: 'text-red-800' },
