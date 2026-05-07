@@ -117,7 +117,7 @@ def reduce():
     target_enum = str_to_enum(target_str)
 
     # 2. Parse and pad inputs using the req_size
-    input_a_bytes = parse_ui_input(input_a_str, req_size, is_query=False)
+    input_a_bytes = parse_ui_input(input_a_str, req_size, is_query=True, target_enum=target_enum)
     input_b_bytes = parse_ui_input(input_b_str, req_size, is_query=True, target_enum=target_enum)
 
 
@@ -133,8 +133,16 @@ def reduce():
         # KEEP the full chain for the bottom text summary
         full_chain = [t['func'] for t in build_trace[:-1]] + [t['func'] for t in reduce_trace]
 
-        # FILTER the traces to only include the final output step
-        final_build_trace = [build_trace[-1]] if build_trace else []
+        # RE-EVALUATE the source block using its own input seed (input_a_bytes)
+        # so the Left output is Source(Input Seed) and Right output is Target(Query).
+        # This prevents the left side from incorrectly displaying the cascaded foundation trace evaluation.
+        if build_trace:
+            eval_a_bytes = router._evaluate_primitive(source_enum, source_inst, input_a_bytes, req_size)
+
+            final_build_trace = [{"func": source_enum.name, "val": eval_a_bytes.hex() if isinstance(eval_a_bytes, bytes) else str(eval_a_bytes)}]
+        else:
+            final_build_trace = []
+            
         final_reduce_trace = [reduce_trace[-1]] if reduce_trace else []
 
         return jsonify({
