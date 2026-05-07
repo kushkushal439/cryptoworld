@@ -24,6 +24,8 @@ from pa16_api import pa16_api
 from pa17_api import pa17_api
 from pa5_api import pa5_api
 from pa10_api import pa10_api
+from pa11_api import pa11_api
+from pa13_api import pa13_api
 
 app.register_blueprint(md_api, url_prefix="/api/md")
 app.register_blueprint(dlp_api, url_prefix="/api/dlp")
@@ -34,6 +36,8 @@ app.register_blueprint(pa1_api, url_prefix="/api/pa1")
 app.register_blueprint(pa3_api, url_prefix="/api/pa3")
 app.register_blueprint(pa5_api, url_prefix="/api/pa5")
 app.register_blueprint(pa10_api, url_prefix="/api/pa10")
+app.register_blueprint(pa11_api, url_prefix="/api/pa11")
+app.register_blueprint(pa13_api, url_prefix="/api/pa13")
 app.register_blueprint(pa15_api, url_prefix="/api/pa15")
 app.register_blueprint(pa16_api, url_prefix="/api/pa16")
 app.register_blueprint(pa17_api, url_prefix="/api/pa17")

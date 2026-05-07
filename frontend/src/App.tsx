@@ -13,6 +13,8 @@ import PA16Demo from './pages/PA16Demo';
 import PA17Demo from './pages/PA17Demo';
 import PA5Demo from './pages/PA5Demo';
 import PA10Demo from './pages/PA10Demo';
+import PA11Demo from './pages/PA11Demo';
+import PA13Demo from './pages/PA13Demo';
 
 function App() {
   return (
@@ -40,6 +42,8 @@ function App() {
             <Route path="/pa3" element={<PA3Demo />} />
             <Route path="/pa5" element={<PA5Demo />} />
             <Route path="/pa10" element={<PA10Demo />} />
+            <Route path="/pa11" element={<PA11Demo />} />
+            <Route path="/pa13" element={<PA13Demo />} />
             <Route path="/pa15" element={<PA15Demo />} />
             <Route path="/pa16" element={<PA16Demo />} />
             <Route path="/pa17" element={<PA17Demo />} />
