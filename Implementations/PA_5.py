@@ -41,14 +41,14 @@ def cbc_mac_logic(prf_eval_func, key: bytes, message: bytes, block_size: int = 1
     return t
 
 
-def hmac(): 
-    
-
-    raise NotImplementedError("HMAC is scheduled for PA #10!")
+def hmac(key: bytes, message: bytes, hash_instance) -> bytes:
+    from Implementations.PA_10 import HMAC
+    return HMAC(key, message, hash_instance)
 
 import os
 
 def euf_cma_demo(mac_instance):
+    ## ts just a demo, the main logic is in the PA5 API route. This is just a quick script to show how the game works.
     print("=== EUF-CMA Forgery Game ===")
     
     # The Challenger generates a secret key
@@ -91,6 +91,7 @@ def euf_cma_demo(mac_instance):
 
 
 def length_extension_demo(compression_func, block_size=16):
+    ## Useless demo
     print("=== Length-Extension Attack on Naive H(k||m) ===")
     
     # 1. Setup
@@ -136,6 +137,8 @@ def length_extension_demo(compression_func, block_size=16):
     
     # Server processes block 2
     server_block_2 = server_payload[block_size:block_size*2]
+    # The server applies the same final block padding rule
+    server_block_2 = server_block_2.ljust(block_size, b'\x00')
     server_final_tag = compression_func(server_state, server_block_2)
     
     print("\n[?] Server verifying the forged message...")
@@ -145,10 +148,3 @@ def length_extension_demo(compression_func, block_size=16):
     else:
         print("[-] Forgery failed.")
     print("================================================\n")
-
-
-
-
-
-
-from Implementations.PA_3 import CPA_Scheme
