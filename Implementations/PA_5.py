@@ -41,7 +41,9 @@ def cbc_mac_logic(prf_eval_func, key: bytes, message: bytes, block_size: int = 1
     return t
 
 
-def hmac():
+def hmac(): 
+    
+
     raise NotImplementedError("HMAC is scheduled for PA #10!")
 
 import os

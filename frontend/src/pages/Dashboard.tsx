@@ -5,6 +5,7 @@ const Dashboard = () => {
     { title: 'PA#0: Base Explorer', link: '/explorer', description: 'The core visualization tool for tracing cryptographic reductions.', bg: 'bg-indigo-100', text: 'text-indigo-800' },
     { title: 'PA#1: PRG Interactive Demo', link: '/pa1', description: 'Live PRG output viewer with output length slider and randomness testing.', bg: 'bg-cyan-100', text: 'text-cyan-800' },
     { title: 'PA#3: IND-CPA Game', link: '/pa3', description: 'Play the IND-CPA game and track advantage with and without nonce reuse.', bg: 'bg-emerald-100', text: 'text-emerald-800' },
+    { title: 'PA#5: MAC Forgery Game', link: '/pa5', description: 'MAC Forgery Game and length extension attack and PRF vs MAC.', bg: 'bg-yellow-100', text: 'text-yellow-800' },
     // More to be added by teammates later
     { title: 'PA#2: GGM Tree Visualiser', link: '/pa2', description: 'Explore the GGM binary tree construct for building PRFs from a PRG.', bg: 'bg-blue-100', text: 'text-blue-800' },
     { title: 'PA#8: DLP Hash Live', link: '/dlp', description: 'Compute DLP Hashes and run the Birthday Attack to solve the Discrete Logarithm.', bg: 'bg-purple-100', text: 'text-purple-800' },
