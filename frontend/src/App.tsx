@@ -6,6 +6,11 @@ import DLPDemo from './pages/DLPDemo';
 import RSADemo from './pages/RSADemo';
 import PA19Demo from './pages/PA19Demo';
 import PA2Demo from './pages/PA2Demo';
+import PA1Demo from './pages/PA1Demo';
+import PA3Demo from './pages/PA3Demo';
+import PA15Demo from './pages/PA15Demo';
+import PA16Demo from './pages/PA16Demo';
+import PA17Demo from './pages/PA17Demo';
 
 function App() {
   return (
@@ -29,6 +34,11 @@ function App() {
             <Route path="/md" element={<MerkleDamgardDemo />} />
             <Route path="/dlp" element={<DLPDemo />} />
             <Route path="/rsa" element={<RSADemo />} />
+            <Route path="/pa1" element={<PA1Demo />} />
+            <Route path="/pa3" element={<PA3Demo />} />
+            <Route path="/pa15" element={<PA15Demo />} />
+            <Route path="/pa16" element={<PA16Demo />} />
+            <Route path="/pa17" element={<PA17Demo />} />
             <Route path="/pa19" element={<PA19Demo />} />
             <Route path="/pa2" element={<PA2Demo />} />
           </Routes>

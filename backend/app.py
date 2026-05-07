@@ -17,12 +17,22 @@ from dlp_api import dlp_api
 from rsa_api import rsa_api
 from pa19_api import pa19_api
 from pa2_api import pa2_api
+from pa1_api import pa1_api
+from pa3_api import pa3_api
+from pa15_api import pa15_api
+from pa16_api import pa16_api
+from pa17_api import pa17_api
 
 app.register_blueprint(md_api, url_prefix="/api/md")
 app.register_blueprint(dlp_api, url_prefix="/api/dlp")
 app.register_blueprint(rsa_api, url_prefix="/api/rsa")
 app.register_blueprint(pa19_api, url_prefix="/api/pa19")
 app.register_blueprint(pa2_api, url_prefix="/api/pa2")
+app.register_blueprint(pa1_api, url_prefix="/api/pa1")
+app.register_blueprint(pa3_api, url_prefix="/api/pa3")
+app.register_blueprint(pa15_api, url_prefix="/api/pa15")
+app.register_blueprint(pa16_api, url_prefix="/api/pa16")
+app.register_blueprint(pa17_api, url_prefix="/api/pa17")
 
 router = God()
 
