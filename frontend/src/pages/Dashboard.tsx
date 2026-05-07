@@ -10,6 +10,7 @@ const Dashboard = () => {
     { title: 'PA#2: GGM Tree Visualiser', link: '/pa2', description: 'Explore the GGM binary tree construct for building PRFs from a PRG.', bg: 'bg-blue-100', text: 'text-blue-800' },
     { title: 'PA#8: DLP Hash Live', link: '/dlp', description: 'Compute DLP Hashes and run the Birthday Attack to solve the Discrete Logarithm.', bg: 'bg-purple-100', text: 'text-purple-800' },
     { title: 'PA#7: Merkle-Damgård Chain Viewer', link: '/md', description: 'Visualize the Merkle-Damgård transform and avalanche effect with editable blocks.', bg: 'bg-green-100', text: 'text-green-800' },
+    { title: 'PA#10: Length-Extension vs HMAC', link: '/pa10', description: 'Side-by-side comparison of a Length Extension attack on Naive Hash vs HMAC protection.', bg: 'bg-orange-100', text: 'text-orange-800' },
     { title: 'PA#14: RSA Broadcast Attack', link: '/rsa', description: 'Demo Håstad\'s Broadcast attack breaking textbook RSA and how PKCS#1 v1.5 defeats it.', bg: 'bg-red-100', text: 'text-red-800' },
     { title: 'PA#15: RSA Sign/Verify', link: '/pa15', description: 'Sign, verify, tamper, and see raw RSA multiplicative forgery.', bg: 'bg-rose-100', text: 'text-rose-800' },
     { title: 'PA#16: ElGamal Malleability', link: '/pa16', description: 'Multiply c2 to get 2m and see why ElGamal fails CCA.', bg: 'bg-teal-100', text: 'text-teal-800' },
