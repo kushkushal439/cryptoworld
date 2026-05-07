@@ -61,24 +61,35 @@ def parse_hex_input(hex_str, default_bytes=16):
         return os.urandom(default_bytes)
 # backend/app.py
 
-def parse_ui_input(input_str, req_size):
+def parse_ui_input(input_str, req_size, is_query=False, target_enum=None):
     """Parses hex or utf-8 string, and securely pads it by repeating."""
     if not input_str:
         return b'\x01' * req_size
         
     clean_str = input_str.replace('...', '').replace(' ', '').replace('0x', '')
     try:
+        # If variable length query, treat numbers as string so 0011 != 00111
+        if is_query and target_enum in (Primitive.MAC, Primitive.CRHF, Primitive.HMAC, Primitive.PRP, Primitive.PRF):
+            raise ValueError()
+            
         if len(clean_str) % 2 != 0:
             clean_str = '0' + clean_str
         base_bytes = bytes.fromhex(clean_str)
     except ValueError:
-        # Fallback: treat it as a normal text string (like "hii")
+        # Fallback: treat it as a normal text string
         base_bytes = input_str.encode('utf-8')
         
-    # Repeat the bytes to fill the size (e.g., "hii" -> "hiihiihii...")
-    # This guarantees the 'r' half of the DLP seed is never all zeros!
-    repeats = (req_size // len(base_bytes)) + 1
-    return (base_bytes * repeats)[:req_size]
+    if is_query and target_enum in (Primitive.MAC, Primitive.CRHF, Primitive.HMAC, Primitive.PRP, Primitive.PRF):
+        return base_bytes
+
+    if len(base_bytes) < req_size:
+        if is_query:
+            base_bytes = base_bytes.ljust(req_size, b'\x00')
+        else:
+            repeats = (req_size // len(base_bytes)) + 1
+            base_bytes = (base_bytes * repeats)[:req_size]
+            
+    return base_bytes[:req_size]
 
 @app.route('/api/reduce', methods=['POST'])
 def reduce():
@@ -102,12 +113,13 @@ def reduce():
         base_instance = OWF(dlp_owf_logic)
         req_size = 64  # DLP GL-construction requires 64 bytes
 
-    # 2. Parse and pad inputs using the req_size
-    input_a_bytes = parse_ui_input(input_a_str, req_size)
-    input_b_bytes = parse_ui_input(input_b_str, req_size)
-
     source_enum = str_to_enum(source_str)
     target_enum = str_to_enum(target_str)
+
+    # 2. Parse and pad inputs using the req_size
+    input_a_bytes = parse_ui_input(input_a_str, req_size, is_query=False)
+    input_b_bytes = parse_ui_input(input_b_str, req_size, is_query=True, target_enum=target_enum)
+
 
     try:
         source_inst, build_trace = router.reduce_with_trace(

@@ -34,8 +34,13 @@ def ggm_prf_logic(prg_instance, key: bytes, query: Any) -> bytes:
         
     # SAFETY NET: GGM tree traversal is computationally expensive for DLP.
     # To prevent Flask from hanging during UI traces, we cap the traversal depth.
+    # We use a custom deterministic 8-bit reduction (FNV-1a like) to avoid hashlib dependencies.
     if len(query) > 8:
-        query = query[:8]
+        hash_val = 0x811c9dc5
+        for char in query:
+            hash_val ^= ord(char)
+            hash_val = (hash_val * 0x01000193) & 0xFFFFFFFF
+        query = format(hash_val & 0xFF, '08b')
 
     current_state = key
     # We explicitly define the bytes we need
@@ -233,6 +238,74 @@ def demo_prf_distinguishing_game():
     serial_pass = "PASS" if (p_serial1 >= 0.01 and p_serial2 >= 0.01) else "FAIL"
     print(f"{'Serial (P-val 1)':<20} | {p_serial1:<10.4f} | {serial_pass}")
     print(f"{'Serial (P-val 2)':<20} | {p_serial2:<10.4f} | {serial_pass}")
+
+
+def split_bytes(data: bytes) -> tuple[bytes, bytes]:
+    """Splits a byte string evenly in half."""
+    if len(data) % 2 != 0:
+        raise ValueError("Feistel network requires an even-length query.")
+    half = len(data) // 2
+    return data[:half], data[half:]
+
+def xor_bytes(a: bytes, b: bytes) -> bytes:
+    """XORs two byte strings of equal length."""
+    return bytes(x ^ y for x, y in zip(a, b))
+
+def luby_rackoff_forward(prf_instance, key: bytes, query: bytes, rounds: int = 4) -> bytes:
+    """
+    Feistel Network (Forward).
+    Converts a PRF into a PRP. 4 rounds yields a Strong PRP.
+    """
+    L, R = split_bytes(query)
+    
+    # We assume the master key is simply the concatenation of the independent round keys.
+    # e.g., For a 4-round AES-based Feistel, the master key is 64 bytes (4 x 16).
+    prf_key_size = len(key) // rounds
+
+    for i in range(rounds):
+        round_key = key[i * prf_key_size : (i + 1) * prf_key_size]
+        
+        # 1. Evaluate the PRF on the Right half: F(K_i, R_{i-1})
+        F_out = prf_instance.evaluate(round_key, R)
+        
+        # Truncate F_out if the PRF output is longer than our half-block
+        F_out = F_out[:len(L)]
+        
+        # 2. Feistel Cross: L_i = R_{i-1}, R_i = L_{i-1} XOR F_out
+        new_L = R
+        new_R = xor_bytes(L, F_out)
+        
+        L, R = new_L, new_R
+        
+    return L + R
+
+def luby_rackoff_inverse(prf_instance, key: bytes, query: bytes, rounds: int = 4) -> bytes:
+    """
+    Feistel Network (Inverse).
+    Traverses the rounds in reverse order to exactly undo the permutation.
+    Note: The underlying PRF is STILL evaluated in the forward direction!
+    """
+    L, R = split_bytes(query)
+    prf_key_size = len(key) // rounds
+
+    # Traverse keys backwards: K_4, K_3, K_2, K_1
+    for i in range(rounds - 1, -1, -1):
+        round_key = key[i * prf_key_size : (i + 1) * prf_key_size]
+        
+        # Undo the Feistel Cross:
+        # Since Forward did: new_L = R, new_R = L XOR F_out
+        # To reverse: old_R = L, old_L = R XOR F_out
+        prev_R = L
+        
+        # The magic of Feistel: we still just evaluate the PRF forward!
+        F_out = prf_instance.evaluate(round_key, prev_R)
+        F_out = F_out[:len(R)]
+        
+        prev_L = xor_bytes(R, F_out)
+        
+        L, R = prev_L, prev_R
+        
+    return L + R
 
 
 
