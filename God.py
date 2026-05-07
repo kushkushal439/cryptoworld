@@ -17,7 +17,6 @@ from Implementations.PA_2 import ggm_prf_logic
 from Implementations.PA_2 import convert_prg_to_prf, convert_prf_to_prg
 from Implementations.PA_4 import CBC_Enc, CBC_Dec, OFB_Enc_Dec, CTR_Enc, CTR_Dec
 from Implementations.PA_2 import luby_rackoff_forward, luby_rackoff_inverse
-from Implementations.PA_7 import MerkleDamgard
 
 
 class God:
@@ -29,9 +28,9 @@ class God:
             Primitive.PRF:  [Primitive.PRG, Primitive.PRP, Primitive.MAC, Primitive.OWP],
             Primitive.OWP:  [Primitive.OWF],
             Primitive.PRP:  [Primitive.PRF],
-            Primitive.MAC:  [Primitive.PRF, Primitive.HMAC, Primitive.CRHF],
-            Primitive.CRHF: [Primitive.HMAC, Primitive.MAC],
-            Primitive.HMAC: [Primitive.CRHF, Primitive.MAC]
+            Primitive.MAC:  [Primitive.PRF],
+            Primitive.CRHF: [],
+            Primitive.HMAC: []
         }
 
     def _find_shortest_path(self, start: Primitive, target: Primitive):
@@ -164,16 +163,13 @@ class God:
         PA #5: MAC to PRF (Backward)
         Per the spec: A secure EUF-CMA MAC on uniformly random messages is a PRF.
         """
-        underlying = getattr(mac_instance, 'underlying', None)
-        b_size = getattr(underlying, 'block_size', None) if underlying else getattr(mac_instance, 'block_size', None)
-        
         return PRF(
             underlying_primitive=mac_instance,
-            logic_func=lambda underlying_mac, k, q: underlying_mac.tag(key=k, message=q.encode('utf-8') if isinstance(q, str) else q),
-            # Safely fetch the block size using getattr
-            block_size=b_size
+            logic_func=lambda underlying_mac, k, q: underlying_mac.tag(key=k, message=q),
+            # Safely fetch the block size using getattr to avoid the earlier bug
+            block_size=getattr(mac_instance.underlying, 'block_size', None)
         )
-
+    
     #########################################################################
 
     # No need to add PRP to MAC or MAC to PRP
@@ -203,122 +199,6 @@ class God:
 
     #########################################################################
         
-    def convert_hmac_to_crhf(self, hmac_instance, **kwargs):
-        # Normally, HMAC expects (key, message). So we fix a uniform random key.
-        # We define the inner compression function h'(cv, block) = HMAC_k(cv || block)
-        fixed_k = b'\x99' * 16 
-
-        def h_prime(cv: bytes, block: bytes) -> bytes:
-            # Assuming hmac_instance.tag(key, message)
-            return hmac_instance.tag(fixed_k, cv + block)
-
-        # Wrap it in the Merkle-Damgard construction to get a full CRHF
-        crhf_instance = MerkleDamgard(
-            compress_fn=h_prime, 
-            iv=b'\x00'*16, 
-            block_size=16
-        )
-        return crhf_instance
-
-    def convert_crhf_to_hmac(self, crhf_instance, **kwargs):
-        # A generic MAC container that uses the CRHF instance to build the HMAC
-        class HMAC_Container:
-            def __init__(self, hash_func):
-                self.hash_func = hash_func
-            
-            def tag(self, key: bytes, message: bytes) -> bytes:
-                block_size = 64
-            
-                if len(key) > block_size:
-                    key = self.hash_func.hash(key)
-                if len(key) < block_size:
-                    key = key.ljust(block_size, b'\x00')
-                
-                ipad = bytes(b ^ 0x36 for b in key)
-                opad = bytes(b ^ 0x5C for b in key)
-                
-                inner_hash = self.hash_func.hash(ipad + message)
-                return self.hash_func.hash(opad + inner_hash)
-
-        return HMAC_Container(crhf_instance)
-
-    #########################################################################
-    
-    def convert_hmac_to_mac(self, hmac_instance, **kwargs):
-        """
-        Forward HMAC => MAC: HMAC is natively a secure EUF-CMA MAC.
-        """
-        class MAC_From_HMAC:
-            def __init__(self, hmac_inst):
-                self.hmac_inst = hmac_inst
-            
-            def tag(self, key: bytes, message: bytes) -> bytes:
-                if hasattr(self.hmac_inst, 'tag'):
-                    return self.hmac_inst.tag(key, message)
-                else:
-                    return self.hmac_inst(key, message)
-        
-        return MAC_From_HMAC(hmac_instance)
-
-    def convert_mac_to_hmac(self, mac_instance, **kwargs):
-        """
-        Backward MAC => HMAC: Any secure PRF-based MAC can be cast in the 
-        HMAC double-hash structure by treating the MAC as the compression step.
-        (Using the MAC directly with ipad/opad derived keys).
-        """
-        class HMAC_From_MAC:
-            def __init__(self, mac_func):
-                self.mac_func = mac_func
-                
-            def tag(self, key: bytes, message: bytes) -> bytes:
-                block_size = 64
-                if len(key) < block_size:
-                    key = key.ljust(block_size, b'\x00')
-                elif len(key) > block_size:
-                    key = key[:block_size] # Simplification
-                
-                ipad = bytes(b ^ 0x36 for b in key)
-                opad = bytes(b ^ 0x5C for b in key)
-                
-                inner_tag = self.mac_func.tag(ipad, message)
-                return self.mac_func.tag(opad, inner_tag)
-                
-        return HMAC_From_MAC(mac_instance)
-
-    #########################################################################
-
-
-    #########################################################################
-
-    def convert_crhf_to_mac(self, crhf_instance, **kwargs):
-        """
-        Forward CRHF => MAC: 
-        We chain the existing converters: CRHF -> HMAC -> MAC
-        """
-        hmac_inst = self.convert_crhf_to_hmac(crhf_instance, **kwargs)
-        return self.convert_hmac_to_mac(hmac_inst, **kwargs)
-
-    def convert_mac_to_crhf(self, mac_instance, **kwargs):
-        """
-        Backward MAC => CRHF: 
-        A secure MAC serves as a collision-resistant compression function.
-        We apply the Merkle-Damgard transform (PA#7) over the MAC.
-        """
-        from Implementations.PA_7 import MerkleDamgard
-        import os
-
-        fixed_k = b'\x99' * 16 
-
-        def h_prime(cv: bytes, block: bytes) -> bytes:
-            return mac_instance.tag(key=fixed_k, message=cv + block)
-
-        return MerkleDamgard(
-            compress_fn=h_prime, 
-            iv=b'\x00'*16, 
-            block_size=16
-        )
-
-    #########################################################################
 
 
     # --- The Orchestrators ---
@@ -351,42 +231,6 @@ class God:
             
         return curr_instance
 
-    def _evaluate_primitive(self, p_type: Primitive, instance, curr_val, key_size):
-        try:
-            if isinstance(curr_val, bytes) and len(curr_val) > key_size:
-                curr_val = curr_val[:key_size]
-
-            if p_type == Primitive.PRG:
-                curr_val = instance.generate(seed=curr_val, length=key_size * 8)
-            elif p_type == Primitive.PRF:
-                curr_val = instance.evaluate(key=b'\x11'*key_size, query=curr_val)
-            elif p_type == Primitive.PRP:
-                if isinstance(curr_val, str):
-                    curr_val = curr_val.encode('utf-8')
-                if len(curr_val) < key_size:
-                    curr_val = curr_val.ljust(key_size, b'\x00')
-                elif len(curr_val) % 2 != 0:
-                    curr_val = curr_val + b'\x00'
-                curr_val = instance.evaluate(key=b'\x33'*key_size, query=curr_val)
-            elif p_type == Primitive.MAC:
-                if isinstance(curr_val, str):
-                    curr_val = curr_val.encode('utf-8')
-                curr_val = instance.tag(key=b'\x22'*key_size, message=curr_val)
-            elif p_type == Primitive.HMAC:
-                if isinstance(curr_val, str):
-                    curr_val = curr_val.encode('utf-8')
-                curr_val = instance.tag(key=b'\x44'*key_size, message=curr_val)
-            elif p_type == Primitive.CRHF:
-                if isinstance(curr_val, str):
-                    curr_val = curr_val.encode('utf-8')
-                curr_val = instance.hash(curr_val)
-            else:
-                curr_val = instance.evaluate(curr_val)
-        except Exception as e:
-            curr_val = f"Error: {e}".encode()
-            print(f"EXCEPTION at {p_type.name}: {e}")
-        return curr_val
-
     def reduce_with_trace(self, in_type: Primitive, out_type: Primitive, instance, input_val, **kwargs):
         path = self._find_shortest_path(in_type, out_type)
         trace = []
@@ -395,18 +239,47 @@ class God:
         curr_val = input_val
         key_size = kwargs.get('key_size', 16)
         
-        if len(path) == 1:
-            eval_val = self._evaluate_primitive(path[0], curr_instance, curr_val, key_size)
-            trace.append({"func": path[0].name, "val": eval_val.hex() if isinstance(eval_val, bytes) else str(eval_val)})
-        else:
-            trace.append({"func": path[0].name, "val": curr_val.hex()[:32] + "..." if isinstance(curr_val, bytes) else str(curr_val)})
+        trace.append({"func": path[0].name, "val": curr_val.hex()[:32] + "..." if isinstance(curr_val, bytes) else str(curr_val)})
 
-            for i in range(len(path) - 1):
-                curr_instance = self.convert(path[i], path[i+1], curr_instance, **kwargs)
-                curr_val = self._evaluate_primitive(path[i+1], curr_instance, curr_val, key_size)
-                trace.append({
-                    "func": path[i+1].name, 
-                    "val": curr_val.hex() if isinstance(curr_val, bytes) else str(curr_val)
-                })
+        for i in range(len(path) - 1):
+            curr_instance = self.convert(path[i], path[i+1], curr_instance, **kwargs)
+            
+            try:
+                if isinstance(curr_val, bytes) and len(curr_val) > key_size:
+                    curr_val = curr_val[:key_size]
+
+                if path[i+1] == Primitive.PRG:
+                    # Pass the running value as the seed. Provide length as key_size * 8
+                    curr_val = curr_instance.generate(seed=curr_val, length=key_size * 8)
+                elif path[i+1] == Primitive.PRF:
+                    # Use a static key so the output varies purely based on the user's input (query)
+                    curr_val = curr_instance.evaluate(key=b'\x11'*key_size, query=curr_val)
+                elif path[i+1] == Primitive.PRP:
+                    if isinstance(curr_val, str):
+                        curr_val = curr_val.encode('utf-8')
+                        
+                    # PRP (Luby-Rackoff or AES) strictly REQUIRES an even length query/16-byte block
+                    # If this relies on AES block cipher directly, pad it to 16 bytes.
+                    if len(curr_val) < key_size:
+                        curr_val = curr_val.ljust(key_size, b'\x00')
+                    # And enforce parity just in case
+                    elif len(curr_val) % 2 != 0:
+                        curr_val = curr_val + b'\x00'
+                        
+                    curr_val = curr_instance.evaluate(key=b'\x33'*key_size, query=curr_val)
+                elif path[i+1] == Primitive.MAC:
+                    if isinstance(curr_val, str):
+                        curr_val = curr_val.encode('utf-8')
+                    curr_val = curr_instance.tag(key=b'\x22'*key_size, message=curr_val)
+                else:
+                    curr_val = curr_instance.evaluate(curr_val)
+            except Exception as e:
+                curr_val = f"Error: {e}".encode()
+                print(f"EXCEPTION at {path[i+1].name}: {e}")
+
+            trace.append({
+                "func": path[i+1].name, 
+                "val": curr_val.hex() if isinstance(curr_val, bytes) else str(curr_val)
+            })
                 
         return curr_instance, trace

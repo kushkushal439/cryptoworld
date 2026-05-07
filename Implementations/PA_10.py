@@ -6,9 +6,9 @@ import random
 import struct
 
 # Import the necessary primitives from prior assignments
-from PA_4 import CBC_Enc, CBC_Dec
-from PA_7 import MerkleDamgard, md_padding
-from PA_8 import DLP_Hash, generate_safe_prime
+from Implementations.PA_4 import CBC_Enc, CBC_Dec
+from Implementations.PA_7 import MerkleDamgard, md_padding
+from Implementations.PA_8 import DLP_Hash, generate_safe_prime
 
 # =====================================================================
 # TASK 7: Constant-Time Comparison
