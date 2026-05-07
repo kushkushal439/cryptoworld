@@ -17,8 +17,7 @@ class MAC(CryptoPrimitive):
             
             return cbc_mac_logic(self.underlying.evaluate, key, message, block_size=bs)
         elif self.mode == "HMAC":
-            from Implementations.PA_10 import HMAC
-            return HMAC(key, message, self.underlying)
+            raise NotImplementedError("HMAC is scheduled for PA #10!")
         else:
             raise ValueError(f"Unknown MAC mode: {self.mode}")
 
