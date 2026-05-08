@@ -1,46 +1,52 @@
-# POIS: The Epic Cryptoworld 🌐🔐
+# POIS - Cryptographic Primitives Explorer
 
-Welcome to the implementation of the Minicrypt Clique for our Principles of Information Security (POIS) project. 
+This project is a web-based educational tool for exploring the **Minicrypt Clique** of cryptographic primitives. It demonstrates the conceptual equivalence and standard reductions between fundamental cryptographic constructs, showing how you can build one primitive from another (for example, building a Pseudorandom Generator (PRG) from a One-Way Function (OWF), or a Pseudorandom Function (PRF) from a PRG).
 
-Our architecture is designed to be highly modular, functional, and strictly compliant with the "No-Library Rule". We use a graph-routing approach to automatically chain cryptographic reductions.
+## What it does
 
-## 🏗️ Architecture Overview
+The core of the project models a "Clique" graph of cryptographic primitives:
+- **One-Way Functions (OWF)**
+- **One-Way Permutations (OWP)**
+- **Pseudorandom Generators (PRG)**
+- **Pseudorandom Functions (PRF)**
+- **Pseudorandom Permutations (PRP)**
+- **Message Authentication Codes (MAC)**
 
-The codebase is split into three main parts:
+In theory (and in this app), these primitives can be reduced to one another. The backend (the "God" class) handles the reduction logic, knowing exactly how to construct the shortest path from a starting primitive to a target primitive using standard cryptographic constructions (like the GGM tree for PRG -> PRF, or Luby-Rackoff for PRF -> PRP). 
 
-1. **`Primitive_enums.py`**: Contains the `Primitive` enum (OWF, PRG, PRF, etc.). This ensures type safety across the graph.
-2. **`CryptoPrimitives/` (The Wrappers)**: Contains base container classes (e.g., `OWF`, `PRG`). We use **Composition over Inheritance**. Instead of writing a new class for every math equation, we pass a pure `logic_func` into these containers.
-3. **`God.py` (The Router)**: The omniscient orchestrator. It holds the adjacency list of the Minicrypt graph and uses BFS to find the shortest reduction path from Primitive A to Primitive B, chaining conversions along the way.
+The web App allows you to visually explore these reductions, inspect the reduction chains, and see the interactive outputs of your cryptographic implementations in real time.
 
-## 🚀 How to Work on Your Assignment (PA_i)
+## Project Structure
 
-**Rule of Thumb:** Keep all your math, logic, tests, and conversions inside your specific assignment file. Do NOT bloat `God.py` or the `CryptoPrimitives` folder with assignment-specific math.
+- `backend/`: A Flask Python server that provides REST APIs and executes the "God" reduction logic and cryptographic primitive implementations.
+- `frontend/`: A React + Vite web application where users can interactively visualize the clique and run reductions.
+- `CryptoPrimitives/`: Base classes and structure for various cryptographic constructs.
+- `Implementations/`: Concrete algorithms and code for the various primitives and transformations (e.g., GGM PRF, Merkle-Damgard, CBC, etc.).
 
-Example: If you are working on PA #1 (OWF to PRG), follow these exact steps:
+## How to Run
 
-### Step 1: Create your implementation file
-Create a file for your assignment (e.g., `implementations/PA1.py`).
+### Backend (Flask Server)
+1. Make sure you have Python installed.
+2. Install the necessary Python backend dependencies (e.g., Flask, flask-cors). You might want to create a virtual environment first.
+   ```bash
+   pip install flask flask-cors pycryptodome
+   ```
+3. Run the backend server:
+   ```bash
+   cd backend
+   python app.py
+   ```
+   *The server typically runs on port 5000.*
 
-### Step 2: Write your pure logic function
-Write the core math without worrying about classes.
-
-```python
-# implementations/PA1.py
-
-def hill_prg_logic(seed, length, owf_instance):
-    # 1. Use owf_instance.evaluate()
-    # 2. Extract hard-core bits
-    # 3. Return the pseudorandom stream
-    pass
-```
-
-### Guidelines for the end user to define a MAC for his usage:
-router = God()
-
- // 2. Define the root foundation (DLP)
-```base_owf = OWF(dlp_logic)```
-
- // 3. Ask the router to traverse the clique and build a MAC
- // Under the hood, this loops through your convert_* methods 
- // and builds the nested PRG -> PRF -> MAC chain automatically!
-```my_mac = router.reduce(Primitive.OWF, Primitive.MAC, base_owf, mac_mode="CBC")```
+### Frontend (React App)
+1. Make sure you have [Node.js](https://nodejs.org/) installed.
+2. Navigate to the frontend directory and install dependencies:
+   ```bash
+   cd frontend
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+4. Open your browser to the local URL provided by Vite (usually `http://localhost:5173`) to explore the application!
