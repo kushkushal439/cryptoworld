@@ -22,6 +22,10 @@ from pa3_api import pa3_api
 from pa15_api import pa15_api
 from pa16_api import pa16_api
 from pa17_api import pa17_api
+from pa5_api import pa5_api
+from pa10_api import pa10_api
+from pa11_api import pa11_api
+from pa13_api import pa13_api
 from pa4_api import pa4_api
 from pa9_api import pa9_api
 from backend.pa12_api import pa12_api
@@ -36,6 +40,10 @@ app.register_blueprint(pa19_api, url_prefix="/api/pa19")
 app.register_blueprint(pa2_api, url_prefix="/api/pa2")
 app.register_blueprint(pa1_api, url_prefix="/api/pa1")
 app.register_blueprint(pa3_api, url_prefix="/api/pa3")
+app.register_blueprint(pa5_api, url_prefix="/api/pa5")
+app.register_blueprint(pa10_api, url_prefix="/api/pa10")
+app.register_blueprint(pa11_api, url_prefix="/api/pa11")
+app.register_blueprint(pa13_api, url_prefix="/api/pa13")
 app.register_blueprint(pa15_api, url_prefix="/api/pa15")
 app.register_blueprint(pa16_api, url_prefix="/api/pa16")
 app.register_blueprint(pa17_api, url_prefix="/api/pa17")
@@ -71,24 +79,35 @@ def parse_hex_input(hex_str, default_bytes=16):
         return os.urandom(default_bytes)
 # backend/app.py
 
-def parse_ui_input(input_str, req_size):
+def parse_ui_input(input_str, req_size, is_query=False, target_enum=None):
     """Parses hex or utf-8 string, and securely pads it by repeating."""
     if not input_str:
         return b'\x01' * req_size
         
     clean_str = input_str.replace('...', '').replace(' ', '').replace('0x', '')
     try:
+        # If variable length query, treat numbers as string so 0011 != 00111
+        if is_query and target_enum in (Primitive.MAC, Primitive.CRHF, Primitive.HMAC, Primitive.PRP, Primitive.PRF):
+            raise ValueError()
+            
         if len(clean_str) % 2 != 0:
             clean_str = '0' + clean_str
         base_bytes = bytes.fromhex(clean_str)
     except ValueError:
-        # Fallback: treat it as a normal text string (like "hii")
+        # Fallback: treat it as a normal text string
         base_bytes = input_str.encode('utf-8')
         
-    # Repeat the bytes to fill the size (e.g., "hii" -> "hiihiihii...")
-    # This guarantees the 'r' half of the DLP seed is never all zeros!
-    repeats = (req_size // len(base_bytes)) + 1
-    return (base_bytes * repeats)[:req_size]
+    if is_query and target_enum in (Primitive.MAC, Primitive.CRHF, Primitive.HMAC, Primitive.PRP, Primitive.PRF):
+        return base_bytes
+
+    if len(base_bytes) < req_size:
+        if is_query:
+            base_bytes = base_bytes.ljust(req_size, b'\x00')
+        else:
+            repeats = (req_size // len(base_bytes)) + 1
+            base_bytes = (base_bytes * repeats)[:req_size]
+            
+    return base_bytes[:req_size]
 
 @app.route('/api/reduce', methods=['POST'])
 def reduce():
@@ -112,12 +131,13 @@ def reduce():
         base_instance = OWF(dlp_owf_logic)
         req_size = 64  # DLP GL-construction requires 64 bytes
 
-    # 2. Parse and pad inputs using the req_size
-    input_a_bytes = parse_ui_input(input_a_str, req_size)
-    input_b_bytes = parse_ui_input(input_b_str, req_size)
-
     source_enum = str_to_enum(source_str)
     target_enum = str_to_enum(target_str)
+
+    # 2. Parse and pad inputs using the req_size
+    input_a_bytes = parse_ui_input(input_a_str, req_size, is_query=True, target_enum=target_enum)
+    input_b_bytes = parse_ui_input(input_b_str, req_size, is_query=True, target_enum=target_enum)
+
 
     try:
         source_inst, build_trace = router.reduce_with_trace(
@@ -131,8 +151,16 @@ def reduce():
         # KEEP the full chain for the bottom text summary
         full_chain = [t['func'] for t in build_trace[:-1]] + [t['func'] for t in reduce_trace]
 
-        # FILTER the traces to only include the final output step
-        final_build_trace = [build_trace[-1]] if build_trace else []
+        # RE-EVALUATE the source block using its own input seed (input_a_bytes)
+        # so the Left output is Source(Input Seed) and Right output is Target(Query).
+        # This prevents the left side from incorrectly displaying the cascaded foundation trace evaluation.
+        if build_trace:
+            eval_a_bytes = router._evaluate_primitive(source_enum, source_inst, input_a_bytes, req_size)
+
+            final_build_trace = [{"func": source_enum.name, "val": eval_a_bytes.hex() if isinstance(eval_a_bytes, bytes) else str(eval_a_bytes)}]
+        else:
+            final_build_trace = []
+            
         final_reduce_trace = [reduce_trace[-1]] if reduce_trace else []
 
         return jsonify({

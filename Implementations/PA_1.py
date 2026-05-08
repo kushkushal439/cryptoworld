@@ -45,21 +45,42 @@ def hard_core_bit_gl(x: int, r: int) -> int:
 
 def hill_prg_logic_dlp(seed: bytes, length: int, owf_instance) -> bytes:
     """
-    PRG from OWF (DLP).
-    Seed must be 64 bytes: 32 bytes for x0, and 32 bytes for r (Goldreich-Levin).
-    f'(x, r) = (f(x), r)
-    b(x, r) = <x, r> mod 2
+    PRG from OWF.
+    Supports both DLP (requires 64 bytes) and AES-based OWF.
     """
-    if len(seed) != 64:
-        raise ValueError("Seed must be 64 bytes for GL-based DLP OWF (256-bit x, 256-bit r).")
-    x = int.from_bytes(seed[:32], 'big')
-    r = int.from_bytes(seed[32:], 'big')
+    # Auto-pad to 64 bytes if needed, so we have a valid x and r
+    if len(seed) < 64:
+        seed = (seed * (64 // len(seed) + 1))[:64]
+        
+    x_bytes = seed[:32]
+    r_bytes = seed[32:64]
+    
+    x = int.from_bytes(x_bytes, 'big')
+    r = int.from_bytes(r_bytes, 'big')
     
     out_bits = []
-    # To generate length bits:
     for _ in range(length):
         out_bits.append(hard_core_bit_gl(x, r))
-        x = owf_instance.evaluate(x)
+        
+        # Try both int (DLP) and bytes (AES) interfaces
+        try:
+            res = owf_instance.evaluate(x)
+        except:
+            # If it fails, fallback to bytes
+            # AES expects 16 byte blocks
+            aes_x = x_bytes[:16]
+            res_bytes = owf_instance.evaluate(aes_x)
+            
+            # Since AES returns 16 bytes, we pad it back to 32 bytes to keep the GL bit logic happy
+            x_bytes = (res_bytes * 2)[:32]
+            x = int.from_bytes(x_bytes, 'big')
+            continue
+            
+        if isinstance(res, bytes):
+            x_bytes = res.ljust(32, b'\x00')
+            x = int.from_bytes(x_bytes, 'big')
+        else:
+            x = res
         
     # Convert bits to bytes
     out_bytes = bytearray((length + 7) // 8)

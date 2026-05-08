@@ -11,6 +11,10 @@ import PA3Demo from './pages/PA3Demo';
 import PA15Demo from './pages/PA15Demo';
 import PA16Demo from './pages/PA16Demo';
 import PA17Demo from './pages/PA17Demo';
+import PA5Demo from './pages/PA5Demo';
+import PA10Demo from './pages/PA10Demo';
+import PA11Demo from './pages/PA11Demo';
+import PA13Demo from './pages/PA13Demo';
 import PA4Demo from './pages/PA4Demo';
 import PA9Demo from './pages/PA9Demo';
 import PA12Demo from './pages/PA12Demo';
@@ -41,6 +45,10 @@ function App() {
             <Route path="/rsa" element={<RSADemo />} />
             <Route path="/pa1" element={<PA1Demo />} />
             <Route path="/pa3" element={<PA3Demo />} />
+            <Route path="/pa5" element={<PA5Demo />} />
+            <Route path="/pa10" element={<PA10Demo />} />
+            <Route path="/pa11" element={<PA11Demo />} />
+            <Route path="/pa13" element={<PA13Demo />} />
             <Route path="/pa4" element={<PA4Demo />} />
             <Route path="/pa15" element={<PA15Demo />} />
             <Route path="/pa16" element={<PA16Demo />} />
