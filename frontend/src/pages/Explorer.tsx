@@ -173,9 +173,6 @@ const Explorer = () => {
                         </React.Fragment>
                     ))}
                 </div>
-                
-                <p className="text-sm text-gray-700 mt-4">Security: PRF-security of AES <ArrowRight size={12} className="inline text-gray-500" /> PRG-security (negl. advantage) <ArrowRight size={12} className="inline text-gray-500" /> PRF-security (GGM thm.)</p>
-                <p className="text-xs italic text-gray-400 font-serif">All intermediate values shown above are real outputs from your PA#1–#2 implementations.</p>
             </div>
             
         </div>
