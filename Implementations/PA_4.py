@@ -69,7 +69,12 @@ def CBC_Dec(k: bytes, IV: bytes, C: bytes) -> bytes:
         plaintext += xored_block
         prev_block = block
         
-    return unpad(plaintext)
+    try:
+        return unpad(plaintext)
+    except ValueError:
+        # Return corrupted data without unpadding if unpadding fails
+        return plaintext
+
 
 # 2. OFB Mode
 def OFB_Enc_Dec(k: bytes, IV: bytes, data: bytes) -> bytes:
@@ -115,6 +120,32 @@ def CTR_Dec(k: bytes, nonce: bytes, C: bytes) -> bytes:
         
     plaintext = xor_bytes(C, keystream[:len(C)])
     return plaintext
+
+# 4. Unified Mode Selector Interface (NEW)
+def Encrypt(mode: str, k: bytes, M: bytes) -> tuple[bytes, bytes]:
+    """Unified encryption interface for all modes."""
+    mode = mode.upper()
+    if mode == 'CBC':
+        return CBC_Enc(k, M)
+    elif mode == 'OFB':
+        iv = os.urandom(BLOCK_SIZE)
+        return iv, OFB_Enc_Dec(k, iv, M)
+    elif mode == 'CTR':
+        return CTR_Enc(k, M)
+    else:
+        raise ValueError(f"Unsupported mode: {mode}")
+
+def Decrypt(mode: str, k: bytes, iv_or_nonce: bytes, C: bytes) -> bytes:
+    """Unified decryption interface for all modes."""
+    mode = mode.upper()
+    if mode == 'CBC':
+        return CBC_Dec(k, iv_or_nonce, C)
+    elif mode == 'OFB':
+        return OFB_Enc_Dec(k, iv_or_nonce, C)
+    elif mode == 'CTR':
+        return CTR_Dec(k, iv_or_nonce, C)
+    else:
+        raise ValueError(f"Unsupported mode: {mode}")
 
 # 5. Attack Demos
 def demo_cbc_iv_reuse_attack():
@@ -183,6 +214,25 @@ def demo_ofb_keystream_reuse_attack():
     print(f"C1 XOR C2 recovers M1 XOR M2: {c1_xor_c2}")
     assert c1_xor_c2 == m1_xor_m2
     print("Attack successful: C1 XOR C2 recovered M1 XOR M2.")
+
+# --- Functions for Frontend Demo (NEW) ---
+def flip_bit_in_ciphertext(ciphertext: bytes, block_index: int, bit_index_in_block: int) -> bytes:
+    """
+    Flips a single bit in a specified ciphertext block.
+    bit_index_in_block is 0-127
+    """
+    byte_index = (block_index * BLOCK_SIZE) + (bit_index_in_block // 8)
+    bit_in_byte = 7 - (bit_index_in_block % 8)
+    
+    if byte_index >= len(ciphertext):
+        raise ValueError("Bit index is out of the ciphertext's bounds.")
+        
+    # Create a mutable copy
+    c_list = bytearray(ciphertext)
+    # Flip the bit
+    c_list[byte_index] ^= (1 << bit_in_byte)
+    
+    return bytes(c_list)
 
 # 6. Correctness Tests
 def run_correctness_tests():

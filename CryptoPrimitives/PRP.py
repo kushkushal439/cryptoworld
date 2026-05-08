@@ -16,20 +16,16 @@ class PRP(CryptoPrimitive):
 
     def evaluate(self, key: bytes, query: Any) -> bytes:
         """
-        Evaluates the permutation in the forward direction.
-        Used for processes like Encryption or the forward Feistel network.
+        Evaluates the permutation in the forward direction (e.g., Encryption).
         """
         if self.underlying is not None:
-            # Pass the entire underlying instance to the logic function
             return self.forward_logic(self.underlying, key, query)
         else:
-            # Foundation route (no underlying primitive)
             return self.forward_logic(key, query)
 
     def inverse(self, key: bytes, query: Any) -> bytes:
         """
-        Evaluates the permutation in the backward direction.
-        Used for processes like Decryption or the inverse Feistel network.
+        Evaluates the permutation in the backward direction (e.g., Decryption).
         """
         if self.underlying is not None:
             return self.inverse_logic(self.underlying, key, query)

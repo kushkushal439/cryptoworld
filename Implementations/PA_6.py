@@ -5,7 +5,12 @@ from God import God
 from Primitive_enums import Primitive
 
 # Assumes you have a DLP module containing your base OWF instance
-from CryptoPrimitives.DLP import dlp_owf 
+from CryptoPrimitives.OWF import OWF
+from Implementations.PA_1 import dlp_owf_logic
+
+dlp_owf = OWF(dlp_owf_logic)
+
+from CryptoPrimitives.AES import aes_prf
 from Implementations.PA_5 import CPA_Scheme
 from Implementations.PA_5 import prf_mac_logic, cbc_mac_logic # and CPA_Scheme if it's there
 
@@ -13,7 +18,8 @@ def setup_primitive_instances():
     """Dynamically routes DLP through the God class to build the MAC."""
     cpa_server = CPA_Scheme()
     deity = God()
-    mac_instance = deity.reduce(Primitive.OWF, Primitive.MAC, dlp_owf)
+    # Use AES PRF so the MAC actually processes the entire block (no 8-bit truncation)
+    mac_instance = deity.convert(Primitive.PRF, Primitive.MAC, aes_prf)
     return cpa_server, mac_instance
 
 # =====================================================================
@@ -59,12 +65,13 @@ class CCA_Scheme:
 # =====================================================================
 
 class CCA_Challenger:
-    def __init__(self, cpa_instance = cpa_default, mac_instance = mac_default, same_key=False):
+    def __init__(self, cpa_instance=None, mac_instance=None, same_key=False):
         """
         Initializes the game. 
         If same_key=True, it intentionally introduces the PA#6 Key Separation vulnerability.
         """
         self.k_E = os.urandom(16)
+        # AES PRF requires a 16-byte key
         self.k_M = self.k_E if same_key else os.urandom(16)
         
         self.cca_scheme = CCA_Scheme(cpa_instance, mac_instance)

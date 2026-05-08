@@ -26,7 +26,13 @@ from pa5_api import pa5_api
 from pa10_api import pa10_api
 from pa11_api import pa11_api
 from pa13_api import pa13_api
+from pa4_api import pa4_api
+from pa9_api import pa9_api
+from backend.pa12_api import pa12_api
+from backend.pa18_api import pa18_api
+from backend.pa6_api import pa6_api
 
+app.register_blueprint(pa4_api, url_prefix='/api/pa4')
 app.register_blueprint(md_api, url_prefix="/api/md")
 app.register_blueprint(dlp_api, url_prefix="/api/dlp")
 app.register_blueprint(rsa_api, url_prefix="/api/rsa")
@@ -41,6 +47,10 @@ app.register_blueprint(pa13_api, url_prefix="/api/pa13")
 app.register_blueprint(pa15_api, url_prefix="/api/pa15")
 app.register_blueprint(pa16_api, url_prefix="/api/pa16")
 app.register_blueprint(pa17_api, url_prefix="/api/pa17")
+app.register_blueprint(pa9_api, url_prefix="/api/pa9")
+app.register_blueprint(pa12_api, url_prefix='/api/pa12')
+app.register_blueprint(pa18_api, url_prefix='/api/pa18')
+app.register_blueprint(pa6_api, url_prefix='/api/pa6')
 
 router = God()
 

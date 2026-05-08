@@ -6,6 +6,7 @@ const Dashboard = () => {
     { title: 'PA#1: PRG Interactive Demo', link: '/pa1', description: 'Live PRG output viewer with output length slider and randomness testing.', bg: 'bg-cyan-100', text: 'text-cyan-800' },
     { title: 'PA#3: IND-CPA Game', link: '/pa3', description: 'Play the IND-CPA game and track advantage with and without nonce reuse.', bg: 'bg-emerald-100', text: 'text-emerald-800' },
     { title: 'PA#5: MAC Forgery Game', link: '/pa5', description: 'MAC Forgery Game and length extension attack and PRF vs MAC.', bg: 'bg-yellow-100', text: 'text-yellow-800' },
+    { title: 'PA#4: Block Cipher Modes', link: '/pa4', description: 'Interactive demo of CBC, OFB, and CTR modes.', bg: 'bg-orange-100', text: 'text-orange-800' },
     // More to be added by teammates later
     { title: 'PA#2: GGM Tree Visualiser', link: '/pa2', description: 'Explore the GGM binary tree construct for building PRFs from a PRG.', bg: 'bg-blue-100', text: 'text-blue-800' },
     { title: 'PA#8: DLP Hash Live', link: '/dlp', description: 'Compute DLP Hashes and run the Birthday Attack to solve the Discrete Logarithm.', bg: 'bg-purple-100', text: 'text-purple-800' },
@@ -18,6 +19,10 @@ const Dashboard = () => {
     { title: 'PA#16: ElGamal Malleability', link: '/pa16', description: 'Multiply c2 to get 2m and see why ElGamal fails CCA.', bg: 'bg-teal-100', text: 'text-teal-800' },
     { title: 'PA#17: CCA Malleability Blocked', link: '/pa17', description: 'Encrypt-then-Sign blocks tampering, contrasted with plain ElGamal.', bg: 'bg-sky-100', text: 'text-sky-800' },
     { title: 'PA#19: Secure AND', link: '/pa19', description: 'Securely compute an AND gate using Oblivious Transfer step-by-step.', bg: 'bg-yellow-100', text: 'text-yellow-800' },
+    { title: 'PA#9: Live Birthday Attack', link: '/pa9', description: 'Demo of the Birthday Attack on a PRG.', bg: 'bg-pink-100', text: 'text-pink-800' },
+    { title: 'PA#12: RSA Determinism Attack', link: '/pa12', description: 'Demonstrate why textbook RSA is not CPA-secure.', bg: 'bg-lime-100', text: 'text-lime-800' },
+    { title: 'PA#18: 1-out-of-2 Oblivious Transfer', link: '/pa18', description: 'Play the role of the receiver in an OT protocol.', bg: 'bg-fuchsia-100', text: 'text-fuchsia-800' },
+    { title: 'PA#6: Malleability Attack vs CCA', link: '/pa6', description: 'Flip ciphertext bits and observe CPA malleability vs CCA security.', bg: 'bg-orange-200', text: 'text-orange-900' },
   ];
 
   return (
