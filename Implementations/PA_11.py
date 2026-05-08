@@ -4,7 +4,7 @@ import random
 import time
 
 # Importing our core math utilities from PA #13 to enforce the no-library rule
-from PA_13 import is_prime, square_and_multiply
+from Implementations.PA_13 import is_prime, square_and_multiply
 
 # =====================================================================
 # 1. GROUP PARAMETER GENERATION

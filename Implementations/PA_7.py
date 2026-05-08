@@ -20,8 +20,8 @@ def md_padding(message: bytes, block_size: int) -> bytes:
     padded_message.append(0x80)
     
     # 2. Append '0' bytes until we leave exactly 8 bytes for the length field
-    # We want: len(padded_message) % block_size == block_size - 8
-    while len(padded_message) % block_size != block_size - 8:
+    # We want: (len(padded_message) + 8) % block_size == 0
+    while (len(padded_message) + 8) % block_size != 0:
         padded_message.append(0x00)
         
     # 3. Append the 64-bit (8-byte) big-endian length

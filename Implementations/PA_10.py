@@ -6,9 +6,9 @@ import random
 import struct
 
 # Import the necessary primitives from prior assignments
-from PA_4 import CBC_Enc, CBC_Dec
-from PA_7 import MerkleDamgard, md_padding
-from PA_8 import DLP_Hash, generate_safe_prime
+from Implementations.PA_4 import CBC_Enc, CBC_Dec
+from Implementations.PA_7 import MerkleDamgard, md_padding
+from Implementations.PA_8 import DLP_Hash, generate_safe_prime
 
 # =====================================================================
 # TASK 7: Constant-Time Comparison
@@ -185,11 +185,11 @@ def demo_length_extension(hash_instance):
     
     # 1. Adversary computes padding for the NEW total length, guessing len(k)
     original_padded = md_padding(naive_payload, hash_instance.block_size)
-    total_len_bits = (len(k) + len(original_padded) - len(naive_payload) + len(m_prime)) * 8
+    total_len_bits = (len(original_padded) + len(m_prime)) * 8
     
     m_prime_padded = bytearray(m_prime)
     m_prime_padded.append(0x80)
-    while (len(original_padded) + len(m_prime_padded)) % hash_instance.block_size != hash_instance.block_size - 8:
+    while (len(original_padded) + len(m_prime_padded) + 8) % hash_instance.block_size != 0:
         m_prime_padded.append(0x00)
     m_prime_padded.extend(struct.pack('>Q', total_len_bits))
     m_prime_padded = bytes(m_prime_padded)
